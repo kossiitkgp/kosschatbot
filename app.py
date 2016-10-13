@@ -4,7 +4,7 @@ import json
 import re
 import requests
 from flask import Flask, request
-
+from dc_hub import get_hub_add
 app = Flask(__name__)
 
 
@@ -53,10 +53,18 @@ def webhook():
     return "ok", 200
 
 def parsing_message(sender_id , message):
+    #gsco re's
     gsoc_re_1=re.search(r'gsoc', message , re.IGNORECASE)
     gsoc_re_2=re.search(r'google summer of code', message , re.IGNORECASE)
-    if gsoc_re_1 or gsoc_re_2 : 
+    #dc re's
+    dc_re_1=re.search(r'dc', message , re.IGNORECASE)
+    dc_re_2=re.search(r'hub', message , re.IGNORECASE)
+    dc_re_3=re.search(r'add', message , re.IGNORECASE)
+    if gsoc_re_1 or gsoc_re_2 :   #if user wants to know about gsoc 
         send_message(sender_id, "I don't know much but you can find more about GSoC(Google Summer of Code) at https://wiki.metakgp.org/w/Google_Summer_of_Code ")
+    elif dc_re_1 and dc_re_2 and dc_re_3 :
+        hub_address = get_hub_add()
+        send_message(sender_id, "The current hub address is {}".format(hub_address))
     else :
         send_message(sender_id, "Can you say something else")
  

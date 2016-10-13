@@ -52,7 +52,7 @@ def webhook():
 
     return "ok", 200
 def add_persistent_menu():
-        params = {
+    params = {
         "access_token": os.environ["PAGE_ACCESS_TOKEN"]
     }
     headers = {

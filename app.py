@@ -60,7 +60,7 @@ def get_user(sender_id) :
     locale : Locale of the user on Facebook
     '''
     base_url = "https://graph.facebook.com/v2.6/{}?fields=first_name,last_name,profile_pic,locale,timezone,gender&access_token={}".format(sender_id,os.environ["PAGE_ACCESS_TOKEN"])
-    user_details = requests.get(base_url)
+    user_details = requests.get(base_url).json()
     return user_details
 def parsing_message(sender_id , message):
     user_details = get_user(sender_id)  #getting user details

@@ -72,12 +72,24 @@ def parsing_message(sender_id , message):
     dc_re_2=re.search(r'hub', message , re.IGNORECASE)
     dc_re_3=re.search(r'add', message , re.IGNORECASE)
     if gsoc_re_1 or gsoc_re_2 :   #if user wants to know about gsoc 
-        send_message(sender_id, "Hey {} ! I don't know much but you can find more about GSoC(Google Summer of Code) at https://wiki.metakgp.org/w/Google_Summer_of_Code ".format(user_details['first_name']))
+        try :
+            msg = "Hey {} ! I don't know much but you can find more about GSoC(Google Summer of Code) at https://wiki.metakgp.org/w/Google_Summer_of_Code ".format(user_details['first_name'])
+        except KeyError:
+            msg = "I don't know much but you can find more about GSoC(Google Summer of Code) at https://wiki.metakgp.org/w/Google_Summer_of_Code "
+        send_message(sender_id, msg)
     elif dc_re_1 and dc_re_2 and dc_re_3 :
         hub_address = get_hub_add()
-        send_message(sender_id, "Hi {} ! The current hub address is {}".format(user_details['first_name'],hub_address))
+        try :
+            msg = "Hi {} ! The current hub address is {}".format(user_details['first_name'],hub_address)
+        except KeyError: 
+            msg = "The current hub address is {}".format(hub_address)
+        send_message(sender_id, msg)
     else :
-        send_message(sender_id, "{} can you say something else".format(user_details['first_name']))
+        try :
+            msg = "{} can you say something else".format(user_details['first_name'])
+        except KeyError :
+            msg = "Can you say something else"
+        send_message(sender_id, msg)
  
 
 def send_message(recipient_id, message_text):

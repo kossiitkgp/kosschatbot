@@ -1,7 +1,7 @@
 import os
 import sys
 import json
-
+import re
 import requests
 from flask import Flask, request
 
@@ -38,8 +38,8 @@ def webhook():
                     sender_id = messaging_event["sender"]["id"]        # the facebook ID of the person sending you the message
                     recipient_id = messaging_event["recipient"]["id"]  # the recipient's ID, which should be your page's facebook ID
                     message_text = messaging_event["message"]["text"]  # the message's text
-
-                    send_message(sender_id, "Just a change ")
+                    parsing_message(message_text)
+                    #send_message(sender_id, "Just a change ")
 
                 if messaging_event.get("delivery"):  # delivery confirmation
                     pass
@@ -51,6 +51,12 @@ def webhook():
                     pass
 
     return "ok", 200
+
+def parsing_message(message):
+    gsoc_re_1=re.search(r'gsoc', message , re.IGNORECASE)
+    gsoc_re_2=re.search(r'google summer of code', message , re.IGNORECASE)
+    if gsoc_re_1 or gsoc_re_2 : 
+        send_message(sender_id, "I don't know much but you can find more about GSoC(Google Summer of Code) at https://wiki.metakgp.org/w/Google_Summer_of_Code ")
 
 
 def send_message(recipient_id, message_text):

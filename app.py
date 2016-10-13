@@ -3,6 +3,7 @@ import sys
 import json
 import re
 import requests
+import apiai
 from flask import Flask, request
 from dc_hub import get_hub_add
 app = Flask(__name__)
@@ -85,13 +86,15 @@ def parsing_message(sender_id , message):
             msg = "The current hub address is {}".format(hub_address)
         send_message(sender_id, msg)
     else :
-        try :
-            msg = "{} can you say something else".format(user_details['first_name'])
-        except KeyError :
-            msg = "Can you say something else"
+        msg = apiai_call(message)
         send_message(sender_id, msg)
- 
-
+def apiai_call(message):
+    ai = apiai.ApiAI(os.environ["APIAI_CLIENT_ACCESS_TOKEN"])
+    request = ai.text_request()
+    request.query = message 
+    response = request.getresponse()
+    response_json = json.loads(response.read().decode('utf-8'))
+    return response_json['result']['fulfillment']['speech']
 def send_message(recipient_id, message_text):
 
     log("sending message to {recipient}: {text}".format(recipient=recipient_id, text=message_text))

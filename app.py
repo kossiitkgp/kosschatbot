@@ -51,8 +51,19 @@ def webhook():
                     pass
 
     return "ok", 200
-
+def get_user(sender_id) :
+    '''
+    The user_details dictionary will have following keys 
+    first_name : First name of user
+    last_name :Last name of user 
+    profile_pic : Profile picture of user 
+    locale : Locale of the user on Facebook
+    '''
+    base_url = "https://graph.facebook.com/v2.6/{}?fields=first_name,last_name,profile_pic,locale,timezone,gender&access_token={}".format(sender_id,os.environ["PAGE_ACCESS_TOKEN"])
+    user_details = requests.get(base_url)
+    return user_details
 def parsing_message(sender_id , message):
+    user_details = get_user(sender_id)  #getting user details
     #gsco re's
     gsoc_re_1=re.search(r'gsoc', message , re.IGNORECASE)
     gsoc_re_2=re.search(r'google summer of code', message , re.IGNORECASE)
@@ -61,12 +72,12 @@ def parsing_message(sender_id , message):
     dc_re_2=re.search(r'hub', message , re.IGNORECASE)
     dc_re_3=re.search(r'add', message , re.IGNORECASE)
     if gsoc_re_1 or gsoc_re_2 :   #if user wants to know about gsoc 
-        send_message(sender_id, "I don't know much but you can find more about GSoC(Google Summer of Code) at https://wiki.metakgp.org/w/Google_Summer_of_Code ")
+        send_message(sender_id, "Hey {} ! I don't know much but you can find more about GSoC(Google Summer of Code) at https://wiki.metakgp.org/w/Google_Summer_of_Code ".format(user_details['first_name']))
     elif dc_re_1 and dc_re_2 and dc_re_3 :
         hub_address = get_hub_add()
-        send_message(sender_id, "The current hub address is {}".format(hub_address))
+        send_message(sender_id, "Hi {} ! The current hub address is {}".format(user_details['first_name'],hub_address))
     else :
-        send_message(sender_id, "Can you say something else")
+        send_message(sender_id, "{} can you say something else".format(user_details['first_name']))
  
 
 def send_message(recipient_id, message_text):

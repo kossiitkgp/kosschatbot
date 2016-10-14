@@ -109,7 +109,7 @@ def sending_sender_action(recipient_id,sender_action) :
     data=json.dumps(
         {
       "recipient":{
-        recipient_id
+        "id" : recipient_id
       },
       "sender_action":sender_action
     })
@@ -179,7 +179,7 @@ def parsing_message(sender_id , message):
         else :
             sending_sender_action(sender_id,'typing_off')
 
-    if gsoc_re_1 or gsoc_re_2 :   #if user wants to know about gsoc 
+    elif gsoc_re_1 or gsoc_re_2 :   #if user wants to know about gsoc 
         try :
             msg = "Hey {} ! I don't know much but you can find more about GSoC(Google Summer of Code) at https://wiki.metakgp.org/w/Google_Summer_of_Code ".format(user_details['first_name'])
         except KeyError:

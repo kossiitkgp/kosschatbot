@@ -67,7 +67,7 @@ def webhook():
     return "ok", 200
 
 def add_get_started_button():
-        params = {
+    params = {
         "access_token": os.environ["PAGE_ACCESS_TOKEN"]
     }
     headers = {

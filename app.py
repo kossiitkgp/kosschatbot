@@ -7,6 +7,7 @@ import apiai
 from flask import Flask, request
 from dc_hub import get_hub_add
 import SO_scrapper
+import upcomingevents
 app = Flask(__name__)
 Flag = None #to keep track of what the user used 
 
@@ -69,6 +70,36 @@ def webhook():
                             except KeyError:
                                 msg = "Good to see you want to come aboard. We generally recruit new memebers in spring semester.Keep checking our facebook page for latest update"                                                        
                             send_message(messaging_event["sender"]["id"],msg)
+                        elif payload_text=="PAYLOAD_UPCOMING_EVENTS" :
+                            user_details = get_user(messaging_event["sender"]["id"]) 
+                            events = upcomingevents.main()
+                            bubble_list = list()
+                            log(events)
+                            for event in events :  # since title and subtitle can be of maximum 80 chars
+                                if len(event['name']) > 80 :
+                                    event['name'] = event['name'][:77] + "..."
+                                if len(event['desc']) > 80 :
+                                    event['desc'] = event['desc'][:77] + "..."
+                                if "img_url" in event.keys() :  #checking if the image is present in the event
+                                    bubble_list.append({"title":event['name'] , "subtitle": event['desc'] , "image_url":event['img_url']})
+                                else :
+                                    bubble_list.append({"title":event['name'] , "subtitle": event['desc']})
+                            log("The bubbles are as follows")
+                            log(bubble_list)
+                            if bubble_list : 
+                                #this all executes when there is atleast one bubble in bubble list
+                                try:   
+                                    msg = "Hey {} ! We are going to have following events : ".format(user_details['first_name'])
+                                except KeyError:
+                                    msg = "We are going to have following events : "
+                                send_message(messaging_event["sender"]["id"],msg)
+                                sending_generic_template(messaging_event["sender"]["id"],bubble_list)
+                            else : 
+                                try:   
+                                    msg = "Hey {} ! There are no new events lined up right now".format(user_details['first_name'])
+                                except KeyError:
+                                    msg = "There are no new events lined up right now"
+                                send_message(messaging_event["sender"]["id"],msg)
                     if messaging_event.get("delivery"):  # delivery confirmation
                         pass
 
@@ -113,6 +144,11 @@ def add_persistent_menu():
                       "setting_type" : "call_to_actions",
                       "thread_state" : "existing_thread",
                       "call_to_actions":[
+                        {
+                          "type":"postback",
+                          "title":"Upcoming Events",
+                          "payload":"PAYLOAD_UPCOMING_EVENTS"                        
+                        },
                         {
                           "type":"postback",
                           "title":"Recruitment",

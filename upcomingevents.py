@@ -1,4 +1,4 @@
-from Pastebin import PastebinAPI
+from pastebin import PastebinAPI
 from bs4 import BeautifulSoup as bs
 import os
 import requests

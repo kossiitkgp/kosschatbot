@@ -166,7 +166,7 @@ def parsing_message(sender_id , message):
     dc_re_1=re.search(r'dc', message , re.IGNORECASE)
     dc_re_2=re.search(r'hub', message , re.IGNORECASE)
     dc_re_3=re.search(r'add', message , re.IGNORECASE)
-    log("The value of flag is :{}".format(flag))
+    log("The value of flag is :{}".format(Flag))
     if Flag == 'DEV_ISSUE' : #this means the user is faceing development issue and has replied with his/her query
         Flag = None
         sending_sender_action(sender_id,'typing_on')

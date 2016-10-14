@@ -6,8 +6,9 @@ import requests
 import apiai
 from flask import Flask, request
 from dc_hub import get_hub_add
+import SO_scrapper
 app = Flask(__name__)
-
+Flag = None #to keep track of what the user used 
 
 @app.route('/', methods=['GET'])
 def verify():
@@ -23,9 +24,9 @@ def verify():
 
 @app.route('/', methods=['POST'])
 def webhook():
-
+    global Flag
     # endpoint for processing incoming messaging events
-    add_persistent_menu()
+    add_persistent_menu()  # this function adds the persistent menu to the chat
     data = request.get_json()
     log(data)  # you may not want to log every incoming message in production, but it's good for testing
 
@@ -40,7 +41,17 @@ def webhook():
                     message_text = messaging_event["message"]["text"]  # the message's text
                     parsing_message(sender_id, message_text)
                     #send_message(sender_id, "Just a change ")
-
+                    #reading the payload from persistent menu
+                if messaging_event.get('postback') : #someone used one the persistent menu
+                    payload_text = messaging_event["postback"]["payload"]  # the payload's text
+                    if payload_text == 'DEV_ISSUE' :
+                        user_details = get_user(sender_id)
+                        try :
+                            msg = "Don't worry {} I will help you out.Please tell me what is you issue.".format(user_details['first_name'])
+                        except KeyError:
+                            msg = "Please tell me what is your issue."
+                        send_message(sender_id,msg)
+                        Flag="DEV_ISSUE"
                 if messaging_event.get("delivery"):  # delivery confirmation
                     pass
 
@@ -70,7 +81,7 @@ def add_persistent_menu():
                         {
                           "type":"postback",
                           "title":"Facing some development issue",
-                          "payload":"DEVELOPER_DEFINED_PAYLOAD_FOR_START_ORDER"
+                          "payload":"DEV_ISSUE"
                         },
                         {
                           "type":"web_url",
@@ -83,6 +94,56 @@ def add_persistent_menu():
     if r.status_code != 200:
         log(r.status_code)
         log(r.text)
+''' This function marks a msg as read , starts `typing` or stops it. sender_action can be following
+mark_seen : Mark last message as read
+typing_on : Turn typing indicators on
+typing_off : Turn typing indicators off
+'''
+def sending_sender_action(recipient_id,sender_action)
+    params = {
+        "access_token": os.environ["PAGE_ACCESS_TOKEN"]
+    }
+    headers = {
+        "Content-Type": "application/json"
+    }
+    data=json.dumps(
+        {
+      "recipient":{
+        recipient_id:
+      },
+      "sender_action":sender_action
+    })
+    r = requests.post("https://graph.facebook.com/v2.6/me/messages", params=params, headers=headers, data=data)
+    if r.status_code != 200:
+        log(r.status_code)
+        log(r.text)
+def sending_generic_template(recipient_id,result_list):
+    params = {
+        "access_token": os.environ["PAGE_ACCESS_TOKEN"]
+    }
+    headers = {
+        "Content-Type": "application/json"
+    }
+    data=json.dumps(
+        {
+  "recipient":{
+    "id":recipient_id
+  },
+  "message":{
+    "attachment":{
+      "type":"template",
+      "payload":{
+        "template_type":"generic",
+        "elements":result_list
+      }
+    }
+  }
+})
+    r = requests.post("https://graph.facebook.com/v2.6/me/messages", params=params, headers=headers, data=data)
+    if r.status_code != 200:
+        log(r.status_code)
+        log(r.text)
+
 def get_user(sender_id) :
     '''
     The user_details dictionary will have following keys 
@@ -95,6 +156,7 @@ def get_user(sender_id) :
     user_details = requests.get(base_url).json()
     return user_details
 def parsing_message(sender_id , message):
+    global Flag
     user_details = get_user(sender_id)  #getting user details
     #gsco re's
     gsoc_re_1=re.search(r'gsoc', message , re.IGNORECASE)
@@ -103,6 +165,20 @@ def parsing_message(sender_id , message):
     dc_re_1=re.search(r'dc', message , re.IGNORECASE)
     dc_re_2=re.search(r'hub', message , re.IGNORECASE)
     dc_re_3=re.search(r'add', message , re.IGNORECASE)
+    if Flag == 'DEV_ISSUE' : #this means the user is faceing development issue and has replied with his/her query
+        Flag = None
+        sending_sender_action(sender_id,'typing_on')
+        SO_results = SO_scrapper.main(message)
+        if len(SO_results) == 0 :
+            sending_sender_action(sender_id,'typing_off')
+            try :
+                msg="Sorry {} , I couldn't find anything about it.".format(user_details['first_name'])
+            except KeyError :
+                msg="Sorry, I couldn't find anything about it."
+            send_message(sender_id,msg)
+        else :
+            sending_sender_action(sender_id,'typing_off')
+
     if gsoc_re_1 or gsoc_re_2 :   #if user wants to know about gsoc 
         try :
             msg = "Hey {} ! I don't know much but you can find more about GSoC(Google Summer of Code) at https://wiki.metakgp.org/w/Google_Summer_of_Code ".format(user_details['first_name'])

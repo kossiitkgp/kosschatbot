@@ -183,6 +183,7 @@ def parsing_message(sender_id , message):
             send_message(sender_id,msg)
         else :
             sending_sender_action(sender_id,'typing_off')
+            sending_generic_template(sender_id,SO_results)
 
     elif gsoc_re_1 or gsoc_re_2 :   #if user wants to know about gsoc 
         try :

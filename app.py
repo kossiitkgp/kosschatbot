@@ -115,7 +115,7 @@ def sending_sender_action(recipient_id,sender_action) :
     })
     r = requests.post("https://graph.facebook.com/v2.6/me/messages", params=params, headers=headers, data=data)
     if r.status_code != 200:
-        log(r.status_code)
+        log("in sending_sender_action : {}".format(r.status_code))
         log(r.text)
 def sending_generic_template(recipient_id,result_list):
     params = {
@@ -141,7 +141,7 @@ def sending_generic_template(recipient_id,result_list):
 })
     r = requests.post("https://graph.facebook.com/v2.6/me/messages", params=params, headers=headers, data=data)
     if r.status_code != 200:
-        log(r.status_code)
+        log("in sending_generic_template : {}".format(r.status_code))
         log(r.text)
 
 def get_user(sender_id) :
@@ -222,7 +222,7 @@ def send_message(recipient_id, message_text):
     })
     r = requests.post("https://graph.facebook.com/v2.6/me/messages", params=params, headers=headers, data=data)
     if r.status_code != 200:
-        log(r.status_code)
+        log("in send_message : {}".format(r.status_code))
         log(r.text)
 
 

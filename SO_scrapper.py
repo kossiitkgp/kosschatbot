@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup as bs 
-from cgi import escape
 def main(query) :
 	formatted_query=query.replace(" ","%20")
 	page_no = 1

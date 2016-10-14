@@ -55,6 +55,13 @@ def webhook():
                             send_message(messaging_event["sender"]["id"],msg)
                             Flag="DEV_ISSUE"
                             log("Changing value of flag") # ---------**************************__-------------
+                        elif payload_text == 'GET_STARTED_PAYLOAD' :
+                            user_details = get_user(messaging_event["sender"]["id"])
+                            try :
+                                msg = "Hi {} !, Welcome to KOSS, How are you doing ?".format(user_details['first_name'])
+                            except KeyError:
+                                msg = "Hi !, Welcome to KOSS, How are you doing ?"
+                            send_message(messaging_event["sender"]["id"],msg)                            
                     if messaging_event.get("delivery"):  # delivery confirmation
                         pass
 
@@ -79,7 +86,7 @@ def add_get_started_button():
   "thread_state":"new_thread",
   "call_to_actions":[
     {
-      "payload":"USER_DEFINED_PAYLOAD"
+      "payload":"GET_STARTED_PAYLOAD"
     }
   ]
 }

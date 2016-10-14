@@ -31,36 +31,37 @@ def webhook():
     log(data)  # you may not want to log every incoming message in production, but it's good for testing
 
     if data["object"] == "page":
-
         for entry in data["entry"]:
             for messaging_event in entry["messaging"]:
+                if messaging_event["sender"]["id"] == '1880474155521998' :
+                    break
+                else :
+                    if messaging_event.get("message"):  # someone sent us a message
+                        sender_id = messaging_event["sender"]["id"]        # the facebook ID of the person sending you the message
+                        recipient_id = messaging_event["recipient"]["id"]  # the recipient's ID, which should be your page's facebook ID
+                        message_text = messaging_event["message"]["text"]  # the message's text
+                        parsing_message(sender_id, message_text)
+                        #send_message(sender_id, "Just a change ")
+                        #reading the payload from persistent menu
+                    if messaging_event.get('postback') : #someone used one the persistent menu
+                        payload_text = messaging_event["postback"]["payload"]  # the payload's text
+                        if payload_text == 'DEV_ISSUE' :
+                            user_details = get_user(messaging_event["sender"]["id"])
+                            try :
+                                msg = "Don't worry {} I will help you out.Please tell me what is you issue.".format(user_details['first_name'])
+                            except KeyError:
+                                msg = "Please tell me what is your issue."
+                            send_message(messaging_event["sender"]["id"],msg)
+                            Flag="DEV_ISSUE"
+                            log("Changing value of flag") # ---------**************************__-------------
+                    if messaging_event.get("delivery"):  # delivery confirmation
+                        pass
 
-                if messaging_event.get("message"):  # someone sent us a message
-                    sender_id = messaging_event["sender"]["id"]        # the facebook ID of the person sending you the message
-                    recipient_id = messaging_event["recipient"]["id"]  # the recipient's ID, which should be your page's facebook ID
-                    message_text = messaging_event["message"]["text"]  # the message's text
-                    parsing_message(sender_id, message_text)
-                    #send_message(sender_id, "Just a change ")
-                    #reading the payload from persistent menu
-                if messaging_event.get('postback') : #someone used one the persistent menu
-                    payload_text = messaging_event["postback"]["payload"]  # the payload's text
-                    if payload_text == 'DEV_ISSUE' :
-                        user_details = get_user(messaging_event["sender"]["id"])
-                        try :
-                            msg = "Don't worry {} I will help you out.Please tell me what is you issue.".format(user_details['first_name'])
-                        except KeyError:
-                            msg = "Please tell me what is your issue."
-                        send_message(messaging_event["sender"]["id"],msg)
-                        Flag="DEV_ISSUE"
-                        log("Changing value of flag") # ---------**************************__-------------
-                if messaging_event.get("delivery"):  # delivery confirmation
-                    pass
+                    if messaging_event.get("optin"):  # optin confirmation
+                        pass
 
-                if messaging_event.get("optin"):  # optin confirmation
-                    pass
-
-                if messaging_event.get("postback"):  # user clicked/tapped "postback" button in earlier message
-                    pass
+                    if messaging_event.get("postback"):  # user clicked/tapped "postback" button in earlier message
+                        pass
 
     return "ok", 200
 def add_persistent_menu():
@@ -171,6 +172,7 @@ def parsing_message(sender_id , message):
         Flag = None
         sending_sender_action(sender_id,'typing_on')
         SO_results = SO_scrapper.main(message)
+        log("Search results for {}".format(message))
         log(SO_results)
         if len(SO_results) == 0 :
             sending_sender_action(sender_id,'typing_off')

@@ -38,6 +38,3 @@ def main(query) :
 		page_no+=1
 		if flag:
 			return result_list
-x= main('i am getting index error in python')
-print len(x)
-print x

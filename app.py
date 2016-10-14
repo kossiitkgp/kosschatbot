@@ -50,7 +50,7 @@ def webhook():
                             msg = "Don't worry {} I will help you out.Please tell me what is you issue.".format(user_details['first_name'])
                         except KeyError:
                             msg = "Please tell me what is your issue."
-                        send_message(sender_id,msg)
+                        send_message(messaging_event["sender"]["id"],msg)
                         Flag="DEV_ISSUE"
                 if messaging_event.get("delivery"):  # delivery confirmation
                     pass

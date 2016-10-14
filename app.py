@@ -45,7 +45,7 @@ def webhook():
                 if messaging_event.get('postback') : #someone used one the persistent menu
                     payload_text = messaging_event["postback"]["payload"]  # the payload's text
                     if payload_text == 'DEV_ISSUE' :
-                        user_details = get_user(sender_id)
+                        user_details = get_user(messaging_event["sender"]["id"])
                         try :
                             msg = "Don't worry {} I will help you out.Please tell me what is you issue.".format(user_details['first_name'])
                         except KeyError:

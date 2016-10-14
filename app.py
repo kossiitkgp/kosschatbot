@@ -99,7 +99,7 @@ mark_seen : Mark last message as read
 typing_on : Turn typing indicators on
 typing_off : Turn typing indicators off
 '''
-def sending_sender_action(recipient_id,sender_action)
+def sending_sender_action(recipient_id,sender_action) :
     params = {
         "access_token": os.environ["PAGE_ACCESS_TOKEN"]
     }
@@ -109,7 +109,7 @@ def sending_sender_action(recipient_id,sender_action)
     data=json.dumps(
         {
       "recipient":{
-        recipient_id:
+        recipient_id
       },
       "sender_action":sender_action
     })

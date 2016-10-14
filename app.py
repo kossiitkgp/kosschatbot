@@ -89,11 +89,6 @@ def add_persistent_menu():
                           "type":"web_url",
                           "title":"View Website",
                           "url":"http://kossiitkgp.in/"
-                        },
-                        {
-                          "type":"web_url",
-                          "title":"Send a E-mail",
-                          "url":"mailto:kossiitkgp@gmail.com"
                         }
                       ]
     })

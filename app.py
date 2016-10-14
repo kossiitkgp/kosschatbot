@@ -61,7 +61,14 @@ def webhook():
                                 msg = "Hi {} !, Welcome to KOSS, How are you doing ?".format(user_details['first_name'])
                             except KeyError:
                                 msg = "Hi !, Welcome to KOSS, How are you doing ?"
-                            send_message(messaging_event["sender"]["id"],msg)                            
+                            send_message(messaging_event["sender"]["id"],msg)
+                        elif payload_text=="PAYLOAD_RECRUIT":
+                            user_details = get_user(messaging_event["sender"]["id"])
+                            try :
+                                msg = "Good to see you want to come aboard {}. We generally recruit new memebers in spring semester.Keep checking our facebook page for latest update".format(user_details['first_name'])
+                            except KeyError:
+                                msg = "Good to see you want to come aboard. We generally recruit new memebers in spring semester.Keep checking our facebook page for latest update"                                                        
+                            send_message(messaging_event["sender"]["id"],msg)
                     if messaging_event.get("delivery"):  # delivery confirmation
                         pass
 
@@ -108,8 +115,8 @@ def add_persistent_menu():
                       "call_to_actions":[
                         {
                           "type":"postback",
-                          "title":"Help",
-                          "payload":"DEVELOPER_DEFINED_PAYLOAD_FOR_HELP"
+                          "title":"Recruitment",
+                          "payload":"PAYLOAD_RECRUIT"
                         },
                         {
                           "type":"postback",

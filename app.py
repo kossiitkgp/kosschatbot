@@ -26,6 +26,7 @@ def verify():
 def webhook():
     global Flag
     # endpoint for processing incoming messaging events
+    add_get_started_button()
     add_persistent_menu()  # this function adds the persistent menu to the chat
     data = request.get_json()
     log(data)  # you may not want to log every incoming message in production, but it's good for testing
@@ -64,6 +65,29 @@ def webhook():
                         pass
 
     return "ok", 200
+
+def add_get_started_button():
+        params = {
+        "access_token": os.environ["PAGE_ACCESS_TOKEN"]
+    }
+    headers = {
+        "Content-Type": "application/json"
+    }
+    data = json.dumps(
+        {
+  "setting_type":"call_to_actions",
+  "thread_state":"new_thread",
+  "call_to_actions":[
+    {
+      "payload":"USER_DEFINED_PAYLOAD"
+    }
+  ]
+}
+    )
+    r = requests.post("https://graph.facebook.com/v2.6/me/thread_settings", params=params, headers=headers, data=data)
+    if r.status_code != 200:
+        log(r.status_code)
+        log(r.text)
 def add_persistent_menu():
     params = {
         "access_token": os.environ["PAGE_ACCESS_TOKEN"]
@@ -96,6 +120,8 @@ def add_persistent_menu():
     if r.status_code != 200:
         log(r.status_code)
         log(r.text)
+
+
 ''' This function marks a msg as read , starts `typing` or stops it. sender_action can be following
 mark_seen : Mark last message as read
 typing_on : Turn typing indicators on
@@ -119,6 +145,8 @@ def sending_sender_action(recipient_id,sender_action) :
     if r.status_code != 200:
         log("in sending_sender_action : {}".format(r.status_code))
         log(r.text)
+
+
 def sending_generic_template(recipient_id,result_list):
     params = {
         "access_token": os.environ["PAGE_ACCESS_TOKEN"]
@@ -146,6 +174,7 @@ def sending_generic_template(recipient_id,result_list):
         log("in sending_generic_template : {}".format(r.status_code))
         log(r.text)
 
+
 def get_user(sender_id) :
     '''
     The user_details dictionary will have following keys 
@@ -157,6 +186,8 @@ def get_user(sender_id) :
     base_url = "https://graph.facebook.com/v2.6/{}?fields=first_name,last_name,profile_pic,locale,timezone,gender&access_token={}".format(sender_id,os.environ["PAGE_ACCESS_TOKEN"])
     user_details = requests.get(base_url).json()
     return user_details
+
+
 def parsing_message(sender_id , message):
     global Flag
     user_details = get_user(sender_id)  #getting user details
@@ -201,6 +232,8 @@ def parsing_message(sender_id , message):
     else :
         msg = apiai_call(message)
         send_message(sender_id, msg)
+
+
 def apiai_call(message):
     ai = apiai.ApiAI(os.environ["APIAI_CLIENT_ACCESS_TOKEN"])
     request = ai.text_request()
@@ -208,6 +241,8 @@ def apiai_call(message):
     response = request.getresponse()
     response_json = json.loads(response.read().decode('utf-8'))
     return response_json['result']['fulfillment']['speech']
+
+
 def send_message(recipient_id, message_text):
 
     log("sending message to {recipient}: {text}".format(recipient=recipient_id, text=message_text))

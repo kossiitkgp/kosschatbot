@@ -52,6 +52,7 @@ def webhook():
                             msg = "Please tell me what is your issue."
                         send_message(messaging_event["sender"]["id"],msg)
                         Flag="DEV_ISSUE"
+                        log("Changing value of flag") # ---------**************************__-------------
                 if messaging_event.get("delivery"):  # delivery confirmation
                     pass
 
@@ -165,10 +166,12 @@ def parsing_message(sender_id , message):
     dc_re_1=re.search(r'dc', message , re.IGNORECASE)
     dc_re_2=re.search(r'hub', message , re.IGNORECASE)
     dc_re_3=re.search(r'add', message , re.IGNORECASE)
+    log("The value of flag is :{}".format(flag))
     if Flag == 'DEV_ISSUE' : #this means the user is faceing development issue and has replied with his/her query
         Flag = None
         sending_sender_action(sender_id,'typing_on')
         SO_results = SO_scrapper.main(message)
+        log(SO_results)
         if len(SO_results) == 0 :
             sending_sender_action(sender_id,'typing_off')
             try :

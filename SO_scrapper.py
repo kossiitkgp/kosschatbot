@@ -30,7 +30,7 @@ def main(query) :
 			votes_span = result.find('span',{'class':'vote-count-post '})
 			no_of_votes=votes_span.string
 			ques_url = "http://stackoverflow.com/{}".format(link['href'])
-			subtitle = "This question received a total of {} answers and {} votes.".format(no_of_ans,no_of_votes)
+			subtitle = "This question received {} answers and {} votes.".format(no_of_ans,no_of_votes)
 			result_dict={'item_url':ques_url,'subtitle':subtitle,'title':title,'buttons':[{"type":"element_share"}]}
 			result_list.append(result_dict)
 			if len(result_list) == 10 :

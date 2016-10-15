@@ -5,9 +5,11 @@ MarkupSafe==0.23
 Werkzeug==0.11.10
 click==6.6
 gunicorn==19.6.0
+pastebin==1.1.0
 itsdangerous==0.24
 requests==2.10.0
 wsgiref==0.1.2
 facepy==1.0.8
 six==1.10.0
 beautifulsoup4==4.5.0
+lxml==3.6.4

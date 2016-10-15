@@ -13,7 +13,7 @@ import upcomingevents
 app = Flask(__name__)
 # Flag = None #to keep track of what the user used 
 url = urlparse.urlparse(os.environ.get('REDISCLOUD_URL'))
-redis_databse = redis.Redis(host=url.hostname, port=url.port, password=url.password)
+redis_database = redis.Redis(host=url.hostname, port=url.port, password=url.password)
 @app.route('/', methods=['GET'])
 def verify():
     # when the endpoint is registered as a webhook, it must echo back
@@ -56,7 +56,7 @@ def webhook():
                             except KeyError:
                                 msg = "Please tell me what is your issue."
                             send_message(messaging_event["sender"]["id"],msg)
-                            redis_databse.set(messaging_event["sender"]["id"],"DI")
+                            redis_database.set(messaging_event["sender"]["id"],"DI")
                             # Flag="DEV_ISSUE"
                             log("Changing value of flag") # ---------**************************__-------------
                         elif payload_text == 'GET_STARTED_PAYLOAD' :
@@ -248,11 +248,11 @@ def parsing_message(sender_id , message):
     dc_re_1=re.search(r'dc', message , re.IGNORECASE)
     dc_re_2=re.search(r'hub', message , re.IGNORECASE)
     dc_re_3=re.search(r'add', message , re.IGNORECASE)
-    Flag=redis_databse.get(sender_id)
+    Flag=redis_database.get(sender_id)
     log("The value of flag is :{}".format(Flag))
     if Flag == 'DI' : #this means the user is faceing development issue and has replied with his/her query
         # Flag = None
-        redis_databse.delete(sender_id)
+        redis_database.delete(sender_id)
         sending_sender_action(sender_id,'typing_on')
         SO_results = SO_scrapper.main(message)
         log("Search results for {}".format(message))

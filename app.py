@@ -6,6 +6,7 @@ import requests
 import apiai
 import urlparse
 import redis
+import traceback
 from flask import Flask, request
 from dc_hub import get_hub_add
 import SO_scrapper
@@ -73,15 +74,19 @@ def webhook():
                             user_details = get_user(messaging_event["sender"]["id"]) 
                             events = upcomingevents.main()
                             bubble_list = list()
-                            for event in events :  # since title and subtitle can be of maximum 80 chars
-                                if len(event['name']) > 80 :
-                                    event['name'] = event['name'][:77] + "..."
-                                if len(event['desc']) > 80 :
-                                    event['desc'] = event['desc'][:77] + "..."
-                                if "img_url" in event.keys() :  #checking if the image is present in the event
-                                    bubble_list.append({"title":event['name'] , "subtitle": event['desc'] , "image_url":event['img_url']})
-                                else :
-                                    bubble_list.append({"title":event['name'] , "subtitle": event['desc']})
+                            try :
+                                for event in events :  # since title and subtitle can be of maximum 80 chars
+                                    if len(event['name']) > 80 :
+                                        event['name'] = event['name'][:77] + "..."
+                                    if len(event['desc']) > 80 :
+                                        event['desc'] = event['desc'][:77] + "..."
+                                    if "img_url" in event.keys() :  #checking if the image is present in the event
+                                        bubble_list.append({"title":event['name'] , "subtitle": event['desc'] , "image_url":event['img_url']})
+                                    else :
+                                        bubble_list.append({"title":event['name'] , "subtitle": event['desc']})
+                            except :
+                                error_msg = "Got following error in getting upcoming events :\n{}".format(traceback.format_exc())
+                                slack_notification(error_msg)
                             if bubble_list : 
                                 #this all executes when there is atleast one bubble in bubble list
                                 try:   
@@ -127,6 +132,8 @@ def add_get_started_button():
     )
     r = requests.post("https://graph.facebook.com/v2.6/me/thread_settings", params=params, headers=headers, data=data)
     if r.status_code != 200:
+        error_msg = "Got following error while adding get started button:\nStatus Code : {}\nText : {}".format(r.status_code,r.text)
+        slack_notification(error_msg)
         log(r.status_code)
         log(r.text)
 def add_persistent_menu():
@@ -164,6 +171,8 @@ def add_persistent_menu():
     })
     r = requests.post("https://graph.facebook.com/v2.6/me/thread_settings", params=params, headers=headers, data=data)
     if r.status_code != 200:
+        error_msg = "Got following error while adding persistent menu:\nStatus Code : {}\nText : {}".format(r.status_code,r.text)
+        slack_notification(error_msg)
         log(r.status_code)
         log(r.text)
 
@@ -189,6 +198,8 @@ def sending_sender_action(recipient_id,sender_action) :
     })
     r = requests.post("https://graph.facebook.com/v2.6/me/messages", params=params, headers=headers, data=data)
     if r.status_code != 200:
+        error_msg = "Got following error while sending sender action:\nStatus Code : {}\nText : {}".format(r.status_code,r.text)
+        slack_notification(error_msg)
         log("in sending_sender_action : {}".format(r.status_code))
         log(r.text)
 
@@ -217,6 +228,8 @@ def sending_generic_template(recipient_id,result_list):
 })
     r = requests.post("https://graph.facebook.com/v2.6/me/messages", params=params, headers=headers, data=data)
     if r.status_code != 200:
+        error_msg = "Got following error while sending generic template:\nStatus Code : {}\nText : {}".format(r.status_code,r.text)
+        slack_notification(error_msg)
         log("in sending_generic_template : {}".format(r.status_code))
         log(r.text)
 
@@ -309,10 +322,24 @@ def send_message(recipient_id, message_text):
     })
     r = requests.post("https://graph.facebook.com/v2.6/me/messages", params=params, headers=headers, data=data)
     if r.status_code != 200:
+        error_msg = "Got following error while sending message:\nStatus Code : {}\nText : {}".format(r.status_code,r.text)
+        slack_notification(error_msg)
         log("in send_message : {}".format(r.status_code))
         log(r.text)
 
 
+def slack_notification(message):
+    headers = {
+        "Content-Type": "application/json"
+    }
+    data =json.dumps({
+        "text":message
+    })   
+    r=requests.post(os.environ["SLACK_WEBHOOK_URL"] , headers=headers , data=data)
+    log(os.environ["SLACK_WEBHOOK_URL"])
+    if r.status_code != 200:
+        log("in slack_notification : {}".format(r.status_code))
+        log(r.text)    
 def log(message):  # simple wrapper for logging to stdout on heroku
     print str(message)
     sys.stdout.flush()

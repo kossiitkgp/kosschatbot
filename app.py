@@ -4,13 +4,16 @@ import json
 import re
 import requests
 import apiai
+import urlparse
+import redis
 from flask import Flask, request
 from dc_hub import get_hub_add
 import SO_scrapper
 import upcomingevents
 app = Flask(__name__)
-Flag = None #to keep track of what the user used 
-
+# Flag = None #to keep track of what the user used 
+url = urlparse.urlparse(os.environ.get('REDISCLOUD_URL'))
+redis_databse = redis.Redis(host=url.hostname, port=url.port, password=url.password)
 @app.route('/', methods=['GET'])
 def verify():
     # when the endpoint is registered as a webhook, it must echo back
@@ -25,13 +28,12 @@ def verify():
 
 @app.route('/', methods=['POST'])
 def webhook():
-    global Flag
+    # global Flag
     # endpoint for processing incoming messaging events
     add_get_started_button()
     add_persistent_menu()  # this function adds the persistent menu to the chat
     data = request.get_json()
     log(data)  # you may not want to log every incoming message in production, but it's good for testing
-
     if data["object"] == "page":
         for entry in data["entry"]:
             for messaging_event in entry["messaging"]:
@@ -54,7 +56,8 @@ def webhook():
                             except KeyError:
                                 msg = "Please tell me what is your issue."
                             send_message(messaging_event["sender"]["id"],msg)
-                            Flag="DEV_ISSUE"
+                            redis_databse.set(messaging_event["sender"]["id"],"DI")
+                            # Flag="DEV_ISSUE"
                             log("Changing value of flag") # ---------**************************__-------------
                         elif payload_text == 'GET_STARTED_PAYLOAD' :
                             user_details = get_user(messaging_event["sender"]["id"])
@@ -236,7 +239,7 @@ def get_user(sender_id) :
 
 
 def parsing_message(sender_id , message):
-    global Flag
+    # global Flag
     user_details = get_user(sender_id)  #getting user details
     #gsco re's
     gsoc_re_1=re.search(r'gsoc', message , re.IGNORECASE)
@@ -245,9 +248,11 @@ def parsing_message(sender_id , message):
     dc_re_1=re.search(r'dc', message , re.IGNORECASE)
     dc_re_2=re.search(r'hub', message , re.IGNORECASE)
     dc_re_3=re.search(r'add', message , re.IGNORECASE)
+    Flag=redis_databse.get(sender_id)
     log("The value of flag is :{}".format(Flag))
-    if Flag == 'DEV_ISSUE' : #this means the user is faceing development issue and has replied with his/her query
-        Flag = None
+    if Flag == 'DI' : #this means the user is faceing development issue and has replied with his/her query
+        # Flag = None
+        redis_databse.delete(sender_id)
         sending_sender_action(sender_id,'typing_on')
         SO_results = SO_scrapper.main(message)
         log("Search results for {}".format(message))

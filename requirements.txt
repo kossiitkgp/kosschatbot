@@ -13,3 +13,4 @@ facepy==1.0.8
 six==1.10.0
 beautifulsoup4==4.5.0
 lxml==3.6.4
+redis==2.10.5

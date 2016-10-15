@@ -74,7 +74,6 @@ def webhook():
                             user_details = get_user(messaging_event["sender"]["id"]) 
                             events = upcomingevents.main()
                             bubble_list = list()
-                            log(events)
                             for event in events :  # since title and subtitle can be of maximum 80 chars
                                 if len(event['name']) > 80 :
                                     event['name'] = event['name'][:77] + "..."
@@ -84,8 +83,6 @@ def webhook():
                                     bubble_list.append({"title":event['name'] , "subtitle": event['desc'] , "image_url":event['img_url']})
                                 else :
                                     bubble_list.append({"title":event['name'] , "subtitle": event['desc']})
-                            log("The bubbles are as follows")
-                            log(bubble_list)
                             if bubble_list : 
                                 #this all executes when there is atleast one bubble in bubble list
                                 try:   

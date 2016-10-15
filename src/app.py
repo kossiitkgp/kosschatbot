@@ -355,22 +355,24 @@ def parsing_message(sender_id , message):
             msg = "The current hub address is {}".format(hub_address)
 
     elif learn_re_1:
+        url = None
         if any(re.search(keyword, message, re.IGNORECASE)) for keyword in languages:
             url = "https://github.com/sindresorhus/awesome#programming-languages"
 
         if any(re.search(keyword, message, re.IGNORECASE)) for keyword in platforms:
             url = "https://github.com/sindresorhus/awesome#platforms"
 
-        msg = "Check out this link to learn about some cool programming languages, frameworks and tools : {}".format(url)
+        if url is not None:
+            msg = "Check out this link to learn about some cool programming languages, frameworks and tools : {}".format(url)
 
-    else:
+    elif msg is None:
         msg = apiai_call(message)
-
-    if msg is not None:
-        send_message(sender_id, msg)
 
     else:
         log("Error in sending message.")
+ 
+    send_message(sender_id, msg)
+
 
 
 def apiai_call(message):

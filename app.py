@@ -65,10 +65,10 @@ def webhook():
                             user_details = get_user(
                                 messaging_event["sender"]["id"])
                             try:
-                                msg = "Don't worry {} I will help you out.Please tell me what is you issue.".format(
+                                msg = "Don't worry {} I will help you out. Please tell me what your issue is.".format(
                                     user_details['first_name'])
                             except KeyError:
-                                msg = "Please tell me what is your issue."
+                                msg = "Please tell me what your issue is."
                             send_message(messaging_event["sender"]["id"], msg)
                             redis_database.set(
                                 messaging_event["sender"]["id"], "DI")
@@ -78,19 +78,19 @@ def webhook():
                             user_details = get_user(
                                 messaging_event["sender"]["id"])
                             try:
-                                msg = "Hi {} !, Welcome to KOSS, How are you doing ?".format(
+                                msg = "Hello from KOSS,  {} ! How are you doing ?".format(
                                     user_details['first_name'])
                             except KeyError:
-                                msg = "Hi !, Welcome to KOSS, How are you doing ?"
+                                msg = "Hello from KOSS! How are you doing ?"
                             send_message(messaging_event["sender"]["id"], msg)
                         elif payload_text == "PAYLOAD_RECRUIT":
                             user_details = get_user(
                                 messaging_event["sender"]["id"])
                             try:
-                                msg = "Good to see you want to come aboard {}. We generally recruit new memebers in spring semester.Keep checking our facebook page for latest update".format(
+                                msg = "Good to see you want to come aboard {}. We generally recruit new members in the Spring semester. Keep checking our facebook page for latest updates".format(
                                     user_details['first_name'])
                             except KeyError:
-                                msg = "Good to see you want to come aboard. We generally recruit new memebers in spring semester.Keep checking our facebook page for latest update"
+                                msg = "Good to see you want to come aboard. We generally recruit new members in the Spring semester. Keep checking our facebook page for latest updates."
                             send_message(messaging_event["sender"]["id"], msg)
                         elif payload_text == "PAYLOAD_UPCOMING_EVENTS":
                             user_details = get_user(
@@ -123,10 +123,10 @@ def webhook():
                                 # this all executes when there is atleast one
                                 # bubble in bubble list
                                 try:
-                                    msg = "Hey {} ! We are going to have following events : ".format(
+                                    msg = "Hey {} ! We have the following events coming up : ".format(
                                         user_details['first_name'])
                                 except KeyError:
-                                    msg = "We are going to have following events : "
+                                    msg = "We have the following events coming up : "
                                 send_message(
                                     messaging_event["sender"]["id"], msg)
                                 sending_generic_template(
@@ -334,10 +334,10 @@ def parsing_message(sender_id, message):
 
     elif gsoc_re_1 or gsoc_re_2:  # if user wants to know about gsoc
         try:
-            msg = "Hey {} ! I don't know much but you can find more about GSoC(Google Summer of Code) at https://wiki.metakgp.org/w/Google_Summer_of_Code ".format(
+            msg = "Hey {} ! You can find more about GSoC(Google Summer of Code) at https://wiki.metakgp.org/w/Google_Summer_of_Code ".format(
                 user_details['first_name'])
         except KeyError:
-            msg = "I don't know much but you can find more about GSoC(Google Summer of Code) at https://wiki.metakgp.org/w/Google_Summer_of_Code "
+            msg = "You can find more about GSoC(Google Summer of Code) at https://wiki.metakgp.org/w/Google_Summer_of_Code "
         send_message(sender_id, msg)
     elif dc_re_1 and dc_re_2 and dc_re_3:
         hub_address = get_hub_add()

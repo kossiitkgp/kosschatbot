@@ -45,14 +45,6 @@ def webhook():
             for messaging_event in entry["messaging"]:
                 if messaging_event["sender"]["id"] == '1880474155521998':
                     break
-                else :
-                    if messaging_event.get("message"):  # someone sent us a message
-                        sender_id = messaging_event["sender"]["id"]        # the facebook ID of the person sending you the message
-                        recipient_id = messaging_event["recipient"]["id"]  # the recipient's ID, which should be your page's facebook ID
-                        try :
-                            message_text = messaging_event["message"]["text"]  # the message's text
-                        except KeyError :
-                            break
                 else:
                     # someone sent us a message
                     if messaging_event.get("message"):
@@ -64,9 +56,9 @@ def webhook():
                         try :
                             message_text = messaging_event["message"][
                                 "text"]  # the message's text
+                            parsing_message(sender_id, message_text)
                         except KeyError :
                             break
-                        parsing_message(sender_id, message_text)
                         # reading the payload from persistent menu
                     # someone used one the persistent menu
                     if messaging_event.get('postback'):

@@ -56,6 +56,7 @@ def webhook():
                         try :
                             message_text = messaging_event["message"][
                                 "text"]  # the message's text
+                            sending_sender_action(sender_id,"mark_seen")
                             parsing_message(sender_id, message_text)
                         except KeyError :
                             break

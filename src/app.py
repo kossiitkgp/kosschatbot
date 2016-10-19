@@ -11,6 +11,8 @@ from flask import Flask, request
 from dc_hub import get_hub_add
 import SO_scrapper
 import upcomingevents
+from githubinfo import platforms, languages
+
 app = Flask(__name__)
 url = urlparse.urlparse(os.environ.get('REDISCLOUD_URL'))
 redis_database = redis.Redis(
@@ -305,16 +307,20 @@ def get_user(sender_id):
     return user_details
 
 
-def parsing_message(sender_id, message):
-    user_details = get_user(sender_id)  # getting user details
-    # gsco re's
-    gsoc_re_1 = re.search(r'gsoc', message, re.IGNORECASE)
-    gsoc_re_2 = re.search(r'google summer of code', message, re.IGNORECASE)
-    # dc re's
-    dc_re_1 = re.search(r'dc', message, re.IGNORECASE)
-    dc_re_2 = re.search(r'hub', message, re.IGNORECASE)
-    dc_re_3 = re.search(r'add', message, re.IGNORECASE)
-    Flag = redis_database.get(sender_id)
+
+def parsing_message(sender_id , message):
+    user_details = get_user(sender_id)  #getting user details
+    #gsco re's
+    gsoc_re_1=re.search(r'gsoc', message , re.IGNORECASE)
+    gsoc_re_2=re.search(r'google summer of code', message , re.IGNORECASE)
+    #dc re's
+    dc_re_1=re.search(r'dc', message , re.IGNORECASE)
+    dc_re_2=re.search(r'hub', message , re.IGNORECASE)
+    dc_re_3=re.search(r'add', message , re.IGNORECASE)
+    # learning re's
+    learn_re_1 = re.search(r'learn', message, re.IGNORECASE)
+    Flag=redis_database.get(sender_id)
+    msg = None
     log("The value of flag is :{}".format(Flag))
     # this means the user is faceing development issue and has replied with
     # his/her query
@@ -324,36 +330,49 @@ def parsing_message(sender_id, message):
         SO_results = SO_scrapper.main(message)
         log("Search results for {}".format(message))
         log(SO_results)
-        if len(SO_results) == 0:
-            sending_sender_action(sender_id, 'typing_off')
-            try:
-                msg = "Sorry {} , I couldn't find anything about it.".format(
-                    user_details['first_name'])
-            except KeyError:
-                msg = "Sorry, I couldn't find anything about it."
-            send_message(sender_id, msg)
-        else:
-            sending_sender_action(sender_id, 'typing_off')
-            sending_generic_template(sender_id, SO_results)
+        if len(SO_results) == 0 :
+            sending_sender_action(sender_id,'typing_off')
+            try :
+                msg="Sorry {} , I couldn't find anything about it.".format(user_details['first_name'])
+            except KeyError :
+                msg="Sorry, I couldn't find anything about it."
+        else :
+            sending_sender_action(sender_id,'typing_off')
+            sending_generic_template(sender_id,SO_results)
 
-    elif gsoc_re_1 or gsoc_re_2:  # if user wants to know about gsoc
-        try:
-            msg = "Hey {} ! You can find more about GSoC(Google Summer of Code) at https://wiki.metakgp.org/w/Google_Summer_of_Code ".format(
-                user_details['first_name'])
+    elif gsoc_re_1 or gsoc_re_2 :   #if user wants to know about gsoc 
+        try :
+            msg = "Hey {} ! I don't know much but you can find more about GSoC(Google Summer of Code) at https://wiki.metakgp.org/w/Google_Summer_of_Code ".format(user_details['first_name'])
         except KeyError:
-            msg = "You can find more about GSoC(Google Summer of Code) at https://wiki.metakgp.org/w/Google_Summer_of_Code "
-        send_message(sender_id, msg)
-    elif dc_re_1 and dc_re_2 and dc_re_3:
+            msg = "I don't know much but you can find more about GSoC(Google Summer of Code) at https://wiki.metakgp.org/w/Google_Summer_of_Code "
+
+    elif dc_re_1 and dc_re_2 and dc_re_3 :
         hub_address = get_hub_add()
         try:
             msg = "Hi {} ! The current hub address is {}".format(
                 user_details['first_name'], hub_address)
         except KeyError:
             msg = "The current hub address is {}".format(hub_address)
-        send_message(sender_id, msg)
-    else:
+
+    elif learn_re_1:
+        url = None
+        if any(re.search(keyword, message, re.IGNORECASE)) for keyword in languages:
+            url = "https://github.com/sindresorhus/awesome#programming-languages"
+
+        if any(re.search(keyword, message, re.IGNORECASE)) for keyword in platforms:
+            url = "https://github.com/sindresorhus/awesome#platforms"
+
+        if url is not None:
+            msg = "Check out this link to learn about some cool programming languages, frameworks and tools : {}".format(url)
+
+    elif msg is None:
         msg = apiai_call(message)
-        send_message(sender_id, msg)
+
+    else:
+        log("Error in sending message.")
+ 
+    send_message(sender_id, msg)
+
 
 
 def apiai_call(message):

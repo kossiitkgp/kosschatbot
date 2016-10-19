@@ -53,9 +53,13 @@ def webhook():
                         # the recipient's ID, which should be your page's
                         # facebook ID
                         recipient_id = messaging_event["recipient"]["id"]
-                        message_text = messaging_event["message"][
-                            "text"]  # the message's text
-                        parsing_message(sender_id, message_text)
+                        try :
+                            message_text = messaging_event["message"][
+                                "text"]  # the message's text
+                            sending_sender_action(sender_id,"mark_seen")
+                            parsing_message(sender_id, message_text)
+                        except KeyError :
+                            break
                         # reading the payload from persistent menu
                     # someone used one the persistent menu
                     if messaging_event.get('postback'):

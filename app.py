@@ -306,6 +306,9 @@ def get_user(sender_id):
 
 
 def parsing_message(sender_id, message):
+    abbreviations = json.load(open('abbreviations.json','r'))
+    for word,value in abbreviations.iteritems():  
+        message=message.replace(word.lower() , value)
     user_details = get_user(sender_id)  # getting user details
     # gsco re's
     gsoc_re_1 = re.search(r'gsoc', message, re.IGNORECASE)

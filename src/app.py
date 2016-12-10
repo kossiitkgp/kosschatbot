@@ -307,8 +307,10 @@ def get_user(sender_id):
     return user_details
 
 
-
 def parsing_message(sender_id , message):
+    abbreviations = json.load(open('abbreviations.json','r'))
+    for word,value in abbreviations.iteritems():  
+        message=message.replace(word.lower() , value)
     user_details = get_user(sender_id)  #getting user details
     #gsco re's
     gsoc_re_1=re.search(r'gsoc', message , re.IGNORECASE)
@@ -356,10 +358,10 @@ def parsing_message(sender_id , message):
 
     elif learn_re_1:
         url = None
-        if any(re.search(keyword, message, re.IGNORECASE)) for keyword in languages:
+        if any(re.search(keyword, message, re.IGNORECASE) for keyword in languages):
             url = "https://github.com/sindresorhus/awesome#programming-languages"
 
-        if any(re.search(keyword, message, re.IGNORECASE)) for keyword in platforms:
+        if any(re.search(keyword, message, re.IGNORECASE) for keyword in platforms):
             url = "https://github.com/sindresorhus/awesome#platforms"
 
         if url is not None:
@@ -429,7 +431,7 @@ def slack_notification(message):
 
 
 def log(message):  # simple wrapper for logging to stdout on heroku
-    print str(message)
+    print (str(message))
     sys.stdout.flush()
 
 

@@ -345,7 +345,7 @@ def parsing_message(sender_id , message):
         except KeyError:
             msg = "I don't know much but you can find more about GSoC(Google Summer of Code) at https://wiki.metakgp.org/w/Google_Summer_of_Code "
 
-    elif dc_re_1 and dc_re_2 and dc_re_3 :
+    elif dc_re_1 and dc_re_3 or dc_re_2:
         hub_address = get_hub_add()
         try:
             msg = "Hi {} ! The current hub address is {}".format(

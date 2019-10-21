@@ -2,7 +2,7 @@ Flask==0.12.3
 apiai==1.0.2
 Jinja2==2.8
 MarkupSafe==0.23
-Werkzeug==0.11.10
+Werkzeug==0.15.3
 click==6.6
 gunicorn==19.6.0
 pastebin==1.1.0

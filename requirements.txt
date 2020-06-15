@@ -1,4 +1,4 @@
-Flask==0.12.3
+Flask==1.0
 apiai==1.0.2
 Jinja2==2.8
 MarkupSafe==0.23

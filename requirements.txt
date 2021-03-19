@@ -1,6 +1,6 @@
 Flask==0.12.3
 apiai==1.0.2
-Jinja2==2.8
+Jinja2==2.11.3
 MarkupSafe==0.23
 Werkzeug==0.15.3
 click==6.6
